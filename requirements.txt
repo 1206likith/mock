@@ -126,3 +126,5 @@ wrapt==1.16.0
 zope.event==5.0
 zope.interface==7.1.1
 logging
+textblob
+docx
