@@ -91,8 +91,9 @@ login_section.subheader("Login")
 
 username = login_section.text_input("Username")
 password = login_section.text_input("Password", type="password")
-if login_section.button("Login"):
+if login_section.button("Login", key="login_button"):
     role = authenticate_user(username, password)
+    # ... rest of the code for login
     if role:
         st.session_state['username'] = username
         st.session_state['role'] = role
@@ -113,13 +114,15 @@ if 'role' in st.session_state and st.session_state['role'] == 'superadmin':
     new_username = st.sidebar.text_input("New Username")
     new_password = st.sidebar.text_input("New Password", type="password")
     user_role = st.sidebar.selectbox("Role", ["user", "admin"])
-    if st.sidebar.button("Register User"):
-        register_user(new_username, new_password, user_role)
+    if st.sidebar.button("Register User", key="register_user_button"):
+    register_user(new_username, new_password, user_role)
+    # ... rest of the code for user registration
     
     # View all registered users
     st.sidebar.write("**View All Users**")
-    if st.sidebar.button("Show Users"):
-        users = view_all_users()
+    if st.sidebar.button("Show Users", key="show_users_button"):
+    users = view_all_users()
+    # ... rest of the code for displaying users
         for user in users:
             st.sidebar.write(f"Username: {user[0]}, Password: {user[1]}, Role: {user[2]}")
 
@@ -129,7 +132,8 @@ if 'username' in st.session_state:
     
     # Document upload and analysis section
     uploaded_files = st.file_uploader("Upload Documents", type=["pdf", "txt"], accept_multiple_files=True)
-    if st.button("Save Documents"):
+    if st.button("Save Documents", key="save_documents_button"):
+    # ... save documents code
         for uploaded_file in uploaded_files:
             save_document_to_db("CBSE Subject", uploaded_file.name.split('.')[0], uploaded_file)
             st.success(f"Document {uploaded_file.name} saved successfully!")
@@ -138,7 +142,7 @@ if 'username' in st.session_state:
     subject = st.selectbox("Select Subject", ["Math", "Chemistry","Physics","Computer Science", "English"])
     doc_type = st.selectbox("Select Document Type", ["Notes", "Sample Papers"])
     documents = load_documents(subject, doc_type)
-    if st.button("Analyze Documents"):
+    if st.button("Analyze Documents", key="analyze_documents_button"):
         if documents:
             display_statistical_dashboard(documents)
 else:
