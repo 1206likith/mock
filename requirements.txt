@@ -61,7 +61,7 @@ packaging==24.1
 pandas==2.2.3
 pefile==2023.2.7
 pillow==10.4.0
-protobuf==4.21.0
+protobuf
 psutil==6.1.0
 pyarrow==17.0.0
 pycparser==2.22
