@@ -115,7 +115,7 @@ if 'role' in st.session_state and st.session_state['role'] == 'superadmin':
     new_password = st.sidebar.text_input("New Password", type="password")
     user_role = st.sidebar.selectbox("Role", ["user", "admin"])
     if st.sidebar.button("Register User", key="register_user_button"):
-    register_user(new_username, new_password, user_role)
+        register_user(new_username, new_password, user_role)
     # ... rest of the code for user registration
     
     # View all registered users
