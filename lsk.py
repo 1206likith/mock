@@ -314,18 +314,14 @@ def create_document_summary(documents):
     return summaries
 
 # Function to display user performance analytics
-def display_performance_analytics(user_id):
-    try:
-        conn = sqlite3.connect('cbse_documents.db')
-        c = conn.cursor()
-        c.execute('SELECT subject, score, date FROM user_progress WHERE user_id=?', (user_id,))
-        progress_records = c.fetchall()
-        for record in progress_records:
-            st.write(f"Subject: {record[0]}, Score: {record[1]}, Date: {record[2]}")
-    except Exception as e:
-        logging.error(f"Error fetching user performance: {e}")
-    finally:
-        conn.close()
+def display_progress_analytics(user_id):
+    conn = sqlite3.connect('cbse_study_app.db')
+    c = conn.cursor()
+    c.execute('SELECT subject, score, date FROM user_progress WHERE user_id=?', (user_id,))
+    progress = c.fetchall()
+    for record in progress:
+        st.write(f"Subject: {record[0]}, Score: {record[1]}, Date: {record[2]}")
+    conn.close()
 
 # Collaboration Functions
 def create_study_group(group_name, user_id):
@@ -380,6 +376,37 @@ def load_forum_posts():
         logging.error(f"Error loading forum posts: {e}")
     finally:
         conn.close()
+def view_rewards(user_id):
+    conn = sqlite3.connect('cbse_study_app.db')
+    c = conn.cursor()
+    c.execute('SELECT reward, date FROM user_rewards WHERE user_id=?', (user_id,))
+    rewards = c.fetchall()
+    conn.close()
+    return rewards
+def send_message(sender_id, receiver_id, message):
+    conn = sqlite3.connect('cbse_study_app.db')
+    c = conn.cursor()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    c.execute('INSERT INTO messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, ?)',
+              (sender_id, receiver_id, message, timestamp))
+    conn.commit()
+    conn.close()
+
+# View messages for a user
+def view_messages(user_id):
+    conn = sqlite3.connect('cbse_study_app.db')
+    c = conn.cursor()
+    c.execute('SELECT sender_id, message, timestamp FROM messages WHERE receiver_id=?', (user_id,))
+    messages = c.fetchall()
+    conn.close()
+    return messages
+def add_study_schedule(user_id, subject, schedule_time):
+    conn = sqlite3.connect('cbse_study_app.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO study_scheduler (user_id, subject, schedule_time, reminder_sent) VALUES (?, ?, ?, ?)',
+              (user_id, subject, schedule_time, 0))
+    conn.commit()
+    conn.close()
 
 # Initialize the database when the script is run
 initialize_db()
@@ -403,7 +430,7 @@ if st.button("Save Documents"):
         save_document_to_db("CBSE Subject", uploaded_file.name.split('.')[0], uploaded_file)
 
 # Load documents and analysis section
-subject = st.selectbox("Select Subject", ["Math", "Science", "English"])
+subject = st.selectbox("Select Subject", ["Math", "Chemistry","Physics","Computer Science", "English"])
 doc_type = st.selectbox("Select Document Type", ["Notes", "Sample Papers"])
 documents = load_documents(subject, doc_type)
 if st.button("Analyze Documents"):
@@ -429,3 +456,36 @@ if st.button("Post Message"):
 
 st.subheader("Forum Posts")
 load_forum_posts()
+if 'user_id' in st.session_state:
+    st.subheader("Messaging System")
+    receiver_id = st.number_input("Recipient User ID", min_value=1)
+    message = st.text_area("Message")
+    if st.button("Send Message"):
+        send_message(st.session_state['user_id'], receiver_id, message)
+        st.success("Message sent!")
+
+    if st.button("View Messages"):
+        messages = view_messages(st.session_state['user_id'])
+        for sender_id, msg, timestamp in messages:
+            st.write(f"From {sender_id} at {timestamp}: {msg}")
+
+# Study Scheduler
+st.subheader("Study Scheduler")
+subject = st.text_input("Subject for study session")
+schedule_time = st.text_input("Schedule Time (YYYY-MM-DD HH:MM)")
+if st.button("Add Study Session"):
+    add_study_schedule(st.session_state['user_id'], subject, schedule_time)
+    st.success("Study session added!")
+
+# Gamified Rewards and Progress Tracking
+st.subheader("Progress Tracking")
+view_progress = st.button("View Progress")
+if view_progress:
+    display_progress_analytics(st.session_state['user_id'])
+
+# View Rewards
+st.subheader("Rewards")
+if st.button("View Rewards"):
+    rewards = view_rewards(st.session_state['user_id'])
+    for reward, date in rewards:
+        st.write(f"Reward: {reward} (Achieved on {date})")
