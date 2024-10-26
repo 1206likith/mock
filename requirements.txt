@@ -109,9 +109,9 @@ threadpoolctl==3.5.0
 tkfilebrowser==2.3.2
 tokenizers==0.20.1
 toml==0.10.2
-torch==2.5.0+cu118
-torchaudio==2.5.0+cu118
-torchvision==0.20.0+cu118
+torch==2.5.0
+torchaudio==2.5.0
+torchvision==0.20.0
 tornado==6.4.1
 tqdm==4.66.5
 transformers==4.46.0
