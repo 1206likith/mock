@@ -121,7 +121,7 @@ if 'role' in st.session_state and st.session_state['role'] == 'superadmin':
     # View all registered users
     st.sidebar.write("**View All Users**")
     if st.sidebar.button("Show Users", key="show_users_button"):
-    users = view_all_users()
+        users = view_all_users()
     # ... rest of the code for displaying users
         for user in users:
             st.sidebar.write(f"Username: {user[0]}, Password: {user[1]}, Role: {user[2]}")
