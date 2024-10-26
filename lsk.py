@@ -91,7 +91,7 @@ def fetch_text_from_url(url):
 
 # Initialize models
 question_generator = pipeline("text-generation", model="gpt2")
-overseer_ai = pipeline("text-classification", model="your-overseer-model")  # Replace with actual model
+overseer_ai = pipeline("text-classification", model="distilbert-base-uncased-finetuned-sst-2-english")  # Replace with actual model
 
 # Streamlit application
 def main():
