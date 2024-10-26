@@ -135,7 +135,7 @@ if 'username' in st.session_state:
             st.success(f"Document {uploaded_file.name} saved successfully!")
 
     # Load and analyze documents
-    subject = st.selectbox("Select Subject", ["Math", "Science", "English"])
+    subject = st.selectbox("Select Subject", ["Math", "Chemistry","Physics","Computer Science", "English"])
     doc_type = st.selectbox("Select Document Type", ["Notes", "Sample Papers"])
     documents = load_documents(subject, doc_type)
     if st.button("Analyze Documents"):
@@ -158,30 +158,34 @@ def save_document_to_db(subject, doc_type, path):
 
 # Load documents from the database with caching
 @st.cache_data
-def load_documents(subject, doc_type=None):
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
-    if doc_type:
-        c.execute('SELECT path FROM documents WHERE subject=? AND type=?', (subject, doc_type))
-    else:
-        c.execute('SELECT path FROM documents WHERE subject=?', (subject,))
-    paths = c.fetchall()
-    documents = []
-    for path in paths:
-        try:
-            if path[0].endswith('.pdf'):
-                with open(path[0], 'rb') as file:
-                    reader = PyPDF2.PdfReader(file)
-                    pdf_text = reader.pages[0].extract_text()  # Read only first page for efficiency
-                    documents.append(pdf_text)
-            else:
-                with open(path[0], 'r', encoding='utf-8') as file:
-                    documents.append(file.read())
-        except Exception as e:
-            st.error(f"Error reading file {path[0]}: {e}")
-            logging.error(f"Error reading file {path[0]}: {e}")
-    conn.close()
-    return documents
+import streamlit as st
+
+def load_documents(subject, doc_type):
+    try:
+        # Replace with actual loading logic
+        documents = []  # This should be the actual data fetched based on subject and doc_type
+        return documents
+    except Exception as e:
+        st.error(f"An error occurred while loading documents: {e}")
+        return None
+
+# Streamlit app
+st.title("Document Loader")
+
+subject = st.selectbox("Select Subject", ["Math", "Science", "English"])
+doc_type = st.selectbox("Select Document Type", ["Notes", "Exercises"])
+
+# Debugging output
+st.write(f"Subject: {subject}, Document Type: {doc_type}")
+
+# Load documents
+documents = load_documents(subject, doc_type)
+
+if documents is not None:
+    st.write("Documents Loaded:", documents)
+else:
+    st.write("No documents to display.")
+
 
 # Export document functionality
 def export_documents(documents, file_format='PDF'):
