@@ -5,7 +5,7 @@ astunparse==1.6.3
 attrs==24.2.0
 auto-py-to-exe==2.44.2
 babel==2.16.0
-beautifulsoup4==4.12.3
+beautifulsoup4
 blinker==1.8.2
 bottle==0.13.2
 bottle-websocket==0.2.9
