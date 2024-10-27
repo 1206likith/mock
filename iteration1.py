@@ -7,7 +7,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 import streamlit as st
 import PyPDF2
-import python-docx
+import docx  # Correct import for python-docx
 
 # Initialize AI models
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
@@ -117,7 +117,7 @@ def read_file(uploaded_file):
         return " ".join(page.extract_text() for page in reader.pages)
     elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         # Read DOCX content using python-docx
-        document = python_docx.Document(uploaded_file)
+        document = docx.Document(uploaded_file)
         return " ".join(paragraph.text for paragraph in document.paragraphs)
     return ""
 
