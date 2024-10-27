@@ -106,9 +106,9 @@ threadpoolctl
 tkfilebrowser
 tokenizers
 toml
-torch==2.5.0+cpu  # Ensure CPU-only version of torch is specified
-torchaudio==2.5.0+cpu  # CPU version of torchaudio
-torchvision==0.20.0+cpu  # CPU version of torchvision
+torch==2.0.1  # Replace with a stable CPU version of torch
+torchaudio==2.0.1  # CPU version of torchaudio
+torchvision==0.15.2  # CPU version of torchvision
 tornado
 tqdm
 transformers
