@@ -6,8 +6,8 @@ from sentence_transformers import SentenceTransformer, util
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 import streamlit as st
-from docx import Document
 import PyPDF2
+import python_docx
 
 # Initialize AI models
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
@@ -116,8 +116,9 @@ def read_file(uploaded_file):
         reader = PyPDF2.PdfReader(uploaded_file)
         return " ".join(page.extract_text() for page in reader.pages)
     elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        doc = Document(uploaded_file)
-        return " ".join(paragraph.text for paragraph in doc.paragraphs)
+        # Read DOCX content using python-docx
+        document = python_docx.Document(uploaded_file)
+        return " ".join(paragraph.text for paragraph in document.paragraphs)
     return ""
 
 # Analyze Document Function
@@ -211,4 +212,4 @@ def document_analysis_page():
                         st.write(f"Q: {item['question']}\nA: {item['answer']}")
 
 if __name__ == "__main__":
-    document_analysis_page() 
+    document_analysis_page()
