@@ -4,8 +4,6 @@ beautifulsoup4
 streamlit
 logging
 numpy
-datetime
-time
 PyPDF2
 fpdf
 docx
