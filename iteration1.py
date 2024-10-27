@@ -69,9 +69,9 @@ def assign_points(user_id, points):
 def get_rewards(user_id):
     with sqlite3.connect('cbse_documents.db') as conn:
         c = conn.cursor()
-        c.execute('SELECT points FROM rewards WHERE user_id=?', (user_id,))
+        c.execute('SELECT SUM(points) FROM rewards WHERE user_id=?', (user_id,))
         rewards = c.fetchone()
-    return rewards[0] if rewards else 0
+    return rewards[0] if rewards and rewards[0] is not None else 0
 
 # Advanced Analysis Functions
 def classify_questions(content):
@@ -212,4 +212,4 @@ def document_analysis_page():
                         st.write(f"Q: {item['question']}\nA: {item['answer']}")
 
 if __name__ == "__main__":
-    document_analysis_page()
+    document_analysis_page
