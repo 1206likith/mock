@@ -128,3 +128,4 @@ zope.interface==7.1.1
 logging
 textblob
 docx
+sentence_transformers
