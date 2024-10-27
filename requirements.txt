@@ -1,5 +1,5 @@
 absl-py
-altair
+altair==4.2.0  # or any 4.x version that is compatible
 altgraph
 astunparse
 attrs
