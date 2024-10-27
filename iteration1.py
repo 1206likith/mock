@@ -11,7 +11,7 @@ import docx  # Correct import for python-docx
 
 # Initialize AI models
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-question_generator = pipeline("text-generation", model="facebook/bart-large-mnli")
+question_generator = pipeline("text-generation", model="facebook/bart-large")
 answer_generator = pipeline("text-generation", model="facebook/bart-large-cnn")
 similarity_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
