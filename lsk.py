@@ -5,88 +5,81 @@ from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.cluster import KMeans
-from transformers import pipeline
-import streamlit as st 
+from transformers import pipeline, GPT2LMHeadModel, GPT2Tokenizer
+import streamlit as st
 import logging
 import numpy as np
-import random
 from datetime import datetime
-import time
 import PyPDF2
 from fpdf import FPDF
 from docx import Document
 from textblob import TextBlob
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from sentence_transformers import SentenceTransformer, util
 import torch
 
 # Set up logging
-import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize the SQLite database for users, documents, and chat messages
 def initialize_db():
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
+    with sqlite3.connect('cbse_documents.db') as conn:
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS users
+                     (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)''')
+        c.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+                  ('GreyTempest', 'Likith1206$', 'superadmin'))
 
-    # User and document tables
-    c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)''')
-    c.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-              ('GreyTempest', 'Likith1206$', 'superadmin'))
-    
-    # Document, marking schemes, and study groups tables
-    c.execute('''CREATE TABLE IF NOT EXISTS documents
-                 (id INTEGER PRIMARY KEY, subject TEXT, type TEXT, path TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS marking_schemes
-                 (id INTEGER PRIMARY KEY, subject TEXT, path TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS textbooks
-                 (id INTEGER PRIMARY KEY, subject TEXT, path TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS study_groups
-                 (id INTEGER PRIMARY KEY, group_name TEXT, user_id TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS group_members
-                 (id INTEGER PRIMARY KEY, group_id INTEGER, user_id TEXT,
-                  FOREIGN KEY (group_id) REFERENCES study_groups (id))''')
-    
-    # Forum posts and messages table
-    c.execute('''CREATE TABLE IF NOT EXISTS forum_posts
-                 (id INTEGER PRIMARY KEY, user_id TEXT, content TEXT, date TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS messages
-                 (id INTEGER PRIMARY KEY, sender_id TEXT, receiver_id TEXT, message TEXT, date TEXT)''')
+        # Create other necessary tables
+        tables = [
+            '''CREATE TABLE IF NOT EXISTS documents
+               (id INTEGER PRIMARY KEY, subject TEXT, type TEXT, path TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS marking_schemes
+               (id INTEGER PRIMARY KEY, subject TEXT, path TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS textbooks
+               (id INTEGER PRIMARY KEY, subject TEXT, path TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS study_groups
+               (id INTEGER PRIMARY KEY, group_name TEXT, user_id TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS group_members
+               (id INTEGER PRIMARY KEY, group_id INTEGER, user_id TEXT,
+               FOREIGN KEY (group_id) REFERENCES study_groups (id))''',
+            '''CREATE TABLE IF NOT EXISTS forum_posts
+               (id INTEGER PRIMARY KEY, user_id TEXT, content TEXT, date TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS messages
+               (id INTEGER PRIMARY KEY, sender_id TEXT, receiver_id TEXT, message TEXT, date TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS user_progress
+               (id INTEGER PRIMARY KEY, user_id TEXT, subject TEXT, score INTEGER, date TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS rewards
+               (id INTEGER PRIMARY KEY, user_id TEXT, points INTEGER, badges TEXT)'''
+        ]
 
-    # Gamification - User Progress and Points
-    c.execute('''CREATE TABLE IF NOT EXISTS user_progress
-                 (id INTEGER PRIMARY KEY, user_id TEXT, subject TEXT, score INTEGER, date TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS rewards
-                 (id INTEGER PRIMARY KEY, user_id TEXT, points INTEGER, badges TEXT)''')
+        for table in tables:
+            c.execute(table)
 
-    conn.commit()
-    conn.close()
+        conn.commit()
 
 # Initialize the database
 initialize_db()
 
 # Authenticate users
 def authenticate_user(username, password):
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
-    c.execute('SELECT role FROM users WHERE username=? AND password=?', (username, password))
-    result = c.fetchone()
-    conn.close()
+    with sqlite3.connect('cbse_documents.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT role FROM users WHERE username=? AND password=?', (username, password))
+        result = c.fetchone()
     return result[0] if result else None
 
 # User registration function (super admin only)
 def register_user(username, password, role='user'):
     try:
-        conn = sqlite3.connect('cbse_documents.db')
-        c = conn.cursor()
-        c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', (username, password, role))
-        conn.commit()
-        st.success(f"User '{username}' registered successfully!")
+        with sqlite3.connect('cbse_documents.db') as conn:
+            c = conn.cursor()
+            c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', (username, password, role))
+            conn.commit()
+            st.success(f"User '{username}' registered successfully!")
     except sqlite3.IntegrityError:
         st.error("Username already exists. Choose a different username.")
-    finally:
-        conn.close()
+    except Exception as e:
+        logging.error(f"Error during user registration: {e}")
 
 # Main login page
 def login_page():
@@ -101,33 +94,32 @@ def login_page():
             st.session_state['username'] = username
             st.session_state['role'] = role
             st.success(f"Welcome, {username}!")
-            st.experimental_rerun()  # Refresh the page to access the main app
+            st.experimental_rerun()
         else:
             st.error("Invalid credentials. Please try again.")
+
 def view_all_users():
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
-    c.execute('SELECT username, password, role FROM users')
-    users = c.fetchall()
-    conn.close()
+    with sqlite3.connect('cbse_documents.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT username, password, role FROM users')
+        users = c.fetchall()
     return users
+
 # Messaging functionality
 def send_message(sender_id, receiver_id, message):
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
-    c.execute('INSERT INTO messages (sender_id, receiver_id, message, date) VALUES (?, ?, ?, ?)', 
-              (sender_id, receiver_id, message, str(datetime.now())))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('cbse_documents.db') as conn:
+        c = conn.cursor()
+        c.execute('INSERT INTO messages (sender_id, receiver_id, message, date) VALUES (?, ?, ?, ?)', 
+                  (sender_id, receiver_id, message, str(datetime.now())))
+        conn.commit()
 
 def view_messages(user_id):
-    conn = sqlite3.connect('cbse_documents.db')
-    c = conn.cursor()
-    c.execute('SELECT sender_id, message, date FROM messages WHERE receiver_id=?', (user_id,))
-    messages = c.fetchall()
-    conn.close()
+    with sqlite3.connect('cbse_documents.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT sender_id, message, date FROM messages WHERE receiver_id=?', (user_id,))
+        messages = c.fetchall()
     return messages
-
+    
 # Gamification - Assign points and rewards
 def assign_points(user_id, points):
     conn = sqlite3.connect('cbse_documents.db')
