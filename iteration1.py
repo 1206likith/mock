@@ -102,7 +102,7 @@ def extract_topics(document, num_topics=5):
     X = vectorizer.fit_transform([document])
     lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
     lda.fit(X)
-    
+
     feature_names = vectorizer.get_feature_names_out()
     topics = []
     for topic_idx, topic in enumerate(lda.components_):
@@ -120,10 +120,28 @@ def read_file(uploaded_file):
         return " ".join(paragraph.text for paragraph in doc.paragraphs)
     return ""
 
+# Analyze Document Function
+def analyze_document(document_text, analysis_type):
+    result = {}
+    if analysis_type == "summary":
+        summary = summarizer(document_text, max_length=130, min_length=30, do_sample=False)
+        result["summary"] = summary[0]['summary_text']
+    elif analysis_type == "topic_modeling":
+        result["topics"] = extract_topics(document_text)
+    elif analysis_type == "question_classification":
+        result["classified_questions"] = classify_questions(document_text)
+    elif analysis_type == "mock_paper_generation":
+        topics = extract_topics(document_text)
+        result["generated_questions"] = generate_mock_questions(topics)
+    elif analysis_type == "answer_key_creation":
+        questions = classify_questions(document_text)
+        result["answer_keys"] = generate_answer_keys([q['question'] for q in questions])
+    return result
+
 # Streamlit app structure
 def document_analysis_page():
     st.title("CBSE Advanced Document Analysis Tool")
-    
+
     if 'username' not in st.session_state:
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -136,11 +154,11 @@ def document_analysis_page():
             else:
                 st.error("Invalid credentials. Please try again.")
         return
-    
+
     st.sidebar.title(f"Welcome, {st.session_state['username']}")
     st.sidebar.subheader("Main Menu")
     page_choice = st.sidebar.selectbox("Choose Page", ["Community Forum", "Gamification", "Advanced Document Analysis"])
-    
+
     if page_choice == "Community Forum":
         st.subheader("Community Forum")
         user_id = st.session_state['username']
@@ -152,7 +170,7 @@ def document_analysis_page():
         st.subheader("Inbox")
         for sender, msg, date in view_messages(user_id):
             st.write(f"From {sender} on {date}: {msg}")
-    
+
     elif page_choice == "Gamification":
         st.subheader("Gamification - Points and Rewards")
         points_to_assign = st.number_input("Points to assign", min_value=0)
@@ -160,18 +178,18 @@ def document_analysis_page():
             assign_points(st.session_state['username'], points_to_assign)
             st.success(f"{points_to_assign} points assigned.")
         st.write("Your Points:", get_rewards(st.session_state['username']))
-    
+
     elif page_choice == "Advanced Document Analysis":
         st.subheader("Upload Document (PDF or DOCX)")
         uploaded_file = st.file_uploader("Upload Files", type=["pdf", "docx"])
-        
+
         if uploaded_file:
             document_text = read_file(uploaded_file)
             analysis_type = st.selectbox("Analysis Type", ["Summary", "Topic Modeling", "Question Classification", "Mock Paper Generation", "Answer Key Creation"])
-            
+
             if st.button("Analyze Document"):
                 result = analyze_document(document_text, analysis_type.lower().replace(" ", "_"))
-                
+
                 if analysis_type == "Summary":
                     st.subheader("Document Summary")
                     st.write(result["summary"])
