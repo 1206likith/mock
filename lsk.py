@@ -287,6 +287,7 @@ def upload_training_data(uploaded_files, upload_type):
         st.success(f"File '{uploaded_file.name}' uploaded and model training started.")
         
     return "Upload successful."
+    
 
 # Main application layout
 def main_app():
