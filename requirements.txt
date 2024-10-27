@@ -40,7 +40,7 @@ Jinja2
 joblib
 jsonschema
 jsonschema-specifications
-keras==2.13.1  # CPU-compatible keras version
+keras
 libclang
 lxml
 Markdown
@@ -61,7 +61,7 @@ packaging
 pandas
 pefile
 pillow
-protobuf==3.20.0  # Downgrade protobuf to 3.20.x or lower
+protobuf==3.20.0
 psutil
 pyarrow
 pycparser
@@ -98,17 +98,19 @@ soupsieve
 streamlit
 sympy
 tenacity
-tensorflow-cpu  # CPU-only version of TensorFlow
+tensorboard
+tensorflow[and-cuda]
 tensorflow-io-gcs-filesystem
+tensorflow-cpu
 termcolor
-tf_keras  # Remove [and-cuda] for CPU-only compatibility
+tf_keras
 threadpoolctl
 tkfilebrowser
 tokenizers
 toml
-torch==2.0.1  # Replace with a stable CPU version of torch
-torchaudio==2.0.1  # CPU version of torchaudio
-torchvision==0.15.2  # CPU version of torchvision
+torch
+torchaudio
+torchvision
 tornado
 tqdm
 transformers
@@ -122,6 +124,3 @@ whichcraft
 wrapt
 zope.event
 zope.interface
-logging
-textblob
-sentence_transformers
