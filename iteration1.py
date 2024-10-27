@@ -211,4 +211,4 @@ def document_analysis_page():
                         st.write(f"Q: {item['question']}\nA: {item['answer']}")
 
 if __name__ == "__main__":
-    document_analysis_page()
+    document_analysis_page() 
