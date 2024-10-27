@@ -1,10 +1,10 @@
 absl-py
-altair<5
+altair
 altgraph
 astunparse
 attrs
 auto-py-to-exe
-Babel
+babel
 beautifulsoup4
 blinker
 bottle
@@ -40,7 +40,7 @@ Jinja2
 joblib
 jsonschema
 jsonschema-specifications
-keras
+keras==2.13.1  # CPU-compatible keras version
 libclang
 lxml
 Markdown
@@ -55,13 +55,13 @@ narwhals
 networkx
 nltk
 numpy
-opt-einsum
+opt_einsum
 optree
 packaging
 pandas
 pefile
 pillow
-protobuf==3.20.*
+protobuf==3.20.0  # Downgrade protobuf to 3.20.x or lower
 psutil
 pyarrow
 pycparser
@@ -73,12 +73,13 @@ pyparsing
 PyPDF2
 PyQt5
 PyQt5-Qt5
-PyQt5-sip
+PyQt5_sip
 PySide6
-PySide6-Addons
-PySide6-Essentials
+PySide6_Addons
+PySide6_Essentials
 pytesseract
 python-dateutil
+python-docx
 pytz
 PyYAML
 referencing
@@ -97,24 +98,22 @@ soupsieve
 streamlit
 sympy
 tenacity
-tensorboard
-tensorboard-data-server
-tensorflow-cpu
+tensorflow-cpu  # CPU-only version of TensorFlow
 tensorflow-io-gcs-filesystem
 termcolor
-tf-keras
+tf_keras  # Remove [and-cuda] for CPU-only compatibility
 threadpoolctl
 tkfilebrowser
 tokenizers
 toml
-torch
-torchaudio
-torchvision
+torch==2.5.0+cpu  # Ensure CPU-only version of torch is specified
+torchaudio==2.5.0+cpu  # CPU version of torchaudio
+torchvision==0.20.0+cpu  # CPU version of torchvision
 tornado
 tqdm
 transformers
 ttkbootstrap
-typing-extensions
+typing_extensions
 tzdata
 urllib3
 watchdog
@@ -125,9 +124,4 @@ zope.event
 zope.interface
 logging
 textblob
-python-docx
-sentence-transformers
-
-# CUDA Support (Optional, for GPU):
-# To add CUDA support, run:
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+sentence_transformers
