@@ -176,7 +176,7 @@ def load_documents(subject, doc_type):
 # Streamlit app
 st.title("Document Loader")
 
-subject = st.selectbox("Select Subject", ["Math", "Science", "English"])
+subject = st.selectbox("Select Subject", ["Math", "Chemistry","Physics","Computer Science", "English"])
 doc_type = st.selectbox("Select Document Type", ["Notes", "Exercises"])
 
 # Debugging output
