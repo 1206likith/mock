@@ -11,3 +11,4 @@ textblob
 transformers
 sentence_transformers
 torch
+python-docx
