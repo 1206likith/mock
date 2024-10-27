@@ -61,7 +61,7 @@ packaging
 pandas
 pefile
 pillow
-protobuf
+protobuf==3.20.*
 psutil
 pyarrow
 pycparser
