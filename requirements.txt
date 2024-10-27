@@ -5,7 +5,7 @@ scikit-learn
 beautifulsoup4
 streamlit
 logging
-numpy as np
+numpy
 random
 datetime
 time
