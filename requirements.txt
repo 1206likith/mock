@@ -100,7 +100,7 @@ sympy==1.13.1
 tenacity==9.0.0
 tensorboard
 tensorboard-data-server
-tensorflow
+tensorflow[and-cuda]
 tensorflow-io-gcs-filesystem
 tensorflow-cpu
 termcolor==2.5.0
