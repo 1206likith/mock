@@ -162,7 +162,7 @@ def save_document_to_db(subject, doc_type, path):
 
 # Load documents from the database with caching
 @st.cache_data
-import streamlit as st
+
 
 def load_documents(subject, doc_type):
     try:
