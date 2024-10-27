@@ -1,5 +1,5 @@
 absl-py
-altair
+altair<5
 altgraph
 astunparse
 attrs
