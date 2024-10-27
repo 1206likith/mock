@@ -7,7 +7,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 import streamlit as st
 import PyPDF2
-import python_docx
+import python-docx
 
 # Initialize AI models
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
